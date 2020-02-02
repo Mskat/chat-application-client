@@ -9,7 +9,7 @@ public class Server {
 
     public static void main(String[] args) {
         int portNumber = 5000;
-        Server server = new Server(portNumber);
+        new Server(portNumber);
     }
 
     private Server(int port) {
@@ -18,18 +18,7 @@ public class Server {
             System.out.println("Server listening on port: " + port);
             while(true) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Client accepted " + clientSocket);
-                Thread t = new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            SocketActionSupport(clientSocket);
-                        } catch (IOException e) {
-                            System.out.println("Client disconnected: " + clientSocket);
-                            //e.printStackTrace();
-                        }
-                    }
-                };
+                Thread t = new Thread(new ServerClient(clientSocket));
                 t.start();
             }
         } catch (IOException e) {
@@ -37,12 +26,29 @@ public class Server {
         }
     }
 
-    private void SocketActionSupport(Socket clientSocket) throws IOException {
-        PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
-        BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        String message;
-        while((message = input.readLine()) != null) {
-            output.println(message);
+    class ServerClient implements Runnable{
+
+        Socket socket;
+
+        private ServerClient(Socket clientSocket) {
+            socket = clientSocket;
+            System.out.println("Client accepted: " + socket);
+        }
+
+        @Override
+        public void run() {
+            try {
+                PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
+                BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                String message;
+                while((message = input.readLine()) != null) {
+                    output.println(message);
+                }
+            } catch (IOException e) {
+                System.out.println("Client disconnected: " + socket);
+            }
         }
     }
+
 }
+
