@@ -9,13 +9,14 @@ public class Server {
 
     public static void main(String[] args) {
         int portNumber = 5000;
-        new Server(portNumber);
+        Server server = new Server();
+        server.startServer(portNumber);
     }
 
-    private Server(int port) {
+    private void startServer(int port) {
         try {
             ServerSocket serverSocket = new ServerSocket(port);
-            System.out.println("Server listening on port: " + port);
+            System.out.println("Server is listening on port: " + port);
             while(true) {
                 Socket clientSocket = serverSocket.accept();
                 Thread t = new Thread(new ServerClient(clientSocket));
