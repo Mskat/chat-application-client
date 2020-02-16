@@ -4,8 +4,11 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Server {
+    private List<PrintWriter> chatParticipants = new ArrayList<>();
 
     public static void main(String[] args) {
         int portNumber = 5000;
@@ -17,39 +20,42 @@ public class Server {
         try {
             ServerSocket serverSocket = new ServerSocket(port);
             System.out.println("Server is listening on port: " + port);
-            while(true) {
+            while (true) {
                 Socket clientSocket = serverSocket.accept();
-                Thread t = new Thread(new ServerClient(clientSocket));
-                t.start();
+                PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
+                BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                chatParticipants.add(output);
+                Thread thread = new Thread(new ServerClient(clientSocket, input));
+                thread.start();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    class ServerClient implements Runnable{
+    class ServerClient implements Runnable {
+        private Socket clientSocket;
+        private BufferedReader input;
 
-        Socket socket;
-
-        private ServerClient(Socket clientSocket) {
-            socket = clientSocket;
-            System.out.println("Client accepted: " + socket);
+        private ServerClient(Socket clientSocket, BufferedReader input) {
+            this.clientSocket = clientSocket;
+            this.input = input;
+            System.out.println("Client accepted: " + clientSocket);
         }
 
         @Override
         public void run() {
             try {
-                PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String message;
-                while((message = input.readLine()) != null) {
-                    output.println(message);
+                while ((message = input.readLine()) != null) {
+                    for (PrintWriter participant : chatParticipants) {
+                        participant.println(message);
+                    }
                 }
             } catch (IOException e) {
-                System.out.println("Client disconnected: " + socket);
+                System.out.println("Client disconnected: " + clientSocket);
             }
         }
     }
-
 }
 
