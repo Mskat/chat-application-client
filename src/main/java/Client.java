@@ -5,20 +5,29 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class Client {
+    String name;
 
     public static void main(String[] args) {
         String address = "127.0.0.1";
         int portNumber = 5000;
-        Client client = new Client(address, portNumber);
+        Client client = new Client();
+        client.Client(address, portNumber);
     }
 
-    private Client(String address, int port) {
+    private void Client(String address, int port) {
+        BufferedReader inputLine = new BufferedReader(new InputStreamReader(System.in));
+        try {
+            System.out.print("Type your name: ");
+            name = inputLine.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         try {
             Socket socket = new Socket(address, port);
             System.out.println("Connected");
             PrintWriter output = new PrintWriter(socket.getOutputStream(),true);
             BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            BufferedReader inputLine = new BufferedReader(new InputStreamReader(System.in));
 
             String inputMessage;
             while(!(inputMessage = inputLine.readLine().toLowerCase()).equals("bye")) {
