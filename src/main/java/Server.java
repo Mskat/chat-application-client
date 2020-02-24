@@ -9,6 +9,7 @@ import java.util.List;
 
 public class Server {
     private List<PrintWriter> chatParticipants = new ArrayList<>();
+    private PrintWriter output = null;
 
     public static void main(String[] args) {
         int portNumber = 5000;
@@ -22,7 +23,7 @@ public class Server {
             System.out.println("Server is listening on port: " + port);
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
+                output = new PrintWriter(clientSocket.getOutputStream(), true);
                 BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 chatParticipants.add(output);
                 Thread thread = new Thread(new ServerClient(clientSocket, input));
