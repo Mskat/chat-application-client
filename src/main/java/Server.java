@@ -6,55 +6,55 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
+    private ExecutorService pool = null;
     private List<PrintWriter> chatParticipants = new ArrayList<>();
     private PrintWriter output = null;
 
-    public static void main(String[] args) {
-        int portNumber = 5000;
-        Server server = new Server();
-        server.startServer(portNumber);
-    }
-
-    private void startServer(int port) {
+    public void startServer(int portNumber, int maxNumberOfClients) throws IOException {
         try {
-            ServerSocket serverSocket = new ServerSocket(port);
-            System.out.println("Server is listening on port: " + port);
+            ServerSocket serverSocket = new ServerSocket(portNumber);
+            System.out.println("Server is listening on port: " + portNumber);
+            pool = Executors.newFixedThreadPool(maxNumberOfClients);
             while (true) {
-                Socket clientSocket = serverSocket.accept();
-                output = new PrintWriter(clientSocket.getOutputStream(), true);
-                BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                chatParticipants.add(output);
-                Thread thread = new Thread(new ServerClient(clientSocket, input));
-                thread.start();
+                Socket socket = serverSocket.accept();
+                pool.execute(new ServerHandler(socket));
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } finally {
+            pool.shutdown();
         }
     }
 
-    class ServerClient implements Runnable {
+    class ServerHandler implements Runnable {
         private Socket clientSocket;
         private BufferedReader input;
 
-        private ServerClient(Socket clientSocket, BufferedReader input) {
+        private ServerHandler(Socket clientSocket) throws IOException {
             this.clientSocket = clientSocket;
-            this.input = input;
+            input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            output = new PrintWriter(clientSocket.getOutputStream(), true);
             System.out.println("Client accepted: " + clientSocket);
+            chatParticipants.add(output);
         }
 
         @Override
         public void run() {
             try {
-                String message;
-                while ((message = input.readLine()) != null) {
-                    for (PrintWriter participant : chatParticipants) {
-                        participant.println(message);
-                    }
-                }
+                sendMessageToAllParticipants(input);
             } catch (IOException e) {
                 System.out.println("Client disconnected: " + clientSocket);
+            }
+        }
+
+        private void sendMessageToAllParticipants(BufferedReader input) throws IOException {
+            String message;
+            while ((message = input.readLine()) != null) {
+                for (PrintWriter participant : chatParticipants) {
+                    participant.println(message);
+                }
             }
         }
     }
