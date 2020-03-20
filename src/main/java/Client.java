@@ -3,21 +3,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Client {
     private String name = null;
     private PrintWriter output = null;
     private BufferedReader input = null;
+    private Scanner sc = new Scanner(System.in);
 
     public void startClient(String address, int port) {
         BufferedReader inputLine = new BufferedReader(new InputStreamReader(System.in));
 
-        try {
-            System.out.print("Type your name: ");
-            name = inputLine.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        name = getUserInput();
 
         try {
             Socket clientSocket = new Socket(address, port);
@@ -42,6 +39,10 @@ public class Client {
         } catch (IOException e) {
             
         }
+    }
+
+    private String getUserInput() {
+        return sc.nextLine().trim();
     }
 
     class ClientHandler implements Runnable {
