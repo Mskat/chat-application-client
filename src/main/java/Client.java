@@ -18,9 +18,7 @@ public class Client {
 
         try {
             clientSocket = new Socket(address, port);
-            output = new PrintWriter(clientSocket.getOutputStream(), true);
-            input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            Thread thread = new Thread(new ClientHandler(clientSocket));
+           Thread thread = new Thread(new ClientHandler(clientSocket));
             thread.start();
             typeMessageOrCloseChat();
         } catch (IOException e) {
@@ -33,11 +31,10 @@ public class Client {
             String message = getUserInput();
             if (!message.toLowerCase().equals("exit")) {
                 output.println(name + ": " + message);
-                output.flush();
             } else {
                 output.println(name + " left chat.");
-                output.flush();
                 output.close();
+                input.close();
                 inputLine.close();
                 clientSocket.close();
             }
@@ -51,27 +48,31 @@ public class Client {
     class ClientHandler implements Runnable {
         Socket clientSocket;
 
-        private ClientHandler(Socket clientSocket) {
+        private ClientHandler(Socket clientSocket) throws IOException {
             this.clientSocket = clientSocket;
             System.out.println("Connected. To leave the chat type \"exit\".");
+            output = new PrintWriter(clientSocket.getOutputStream(), true);
+            input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         }
 
         @Override
         public void run() {
             output.println(name + " entered to conversation.");
-            output.flush();
             try {
                 printMessage();
             } catch (IOException e) {
                 System.out.println("You left chat.");
-                output.flush();
-                output.close();
-                try {
-                    inputLine.close();
-                    clientSocket.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
+//                try {
+////                    output.close();
+////                    input.close();
+//                    inputLine.close();
+//                    clientSocket.close();
+//                    System.out.println(clientSocket.isClosed());
+//                    System.out.println("wszystko zamkniete");
+//                    System.out.println(inputLine.readLine());
+//                } catch (IOException e1) {
+//                    e1.printStackTrace();
+//                }
             }
         }
 
