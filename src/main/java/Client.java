@@ -9,41 +9,42 @@ public class Client {
     private String name = null;
     private PrintWriter output = null;
     private BufferedReader input = null;
-    private Scanner sc = new Scanner(System.in);
+    private BufferedReader inputLine = new BufferedReader(new InputStreamReader(System.in));
+    private Socket clientSocket;
 
     public void startClient(String address, int port) throws IOException {
-        BufferedReader inputLine = new BufferedReader(new InputStreamReader(System.in));
-
         System.out.print("Type your name: ");
         name = getUserInput();
 
         try {
-            Socket clientSocket = new Socket(address, port);
+            clientSocket = new Socket(address, port);
             output = new PrintWriter(clientSocket.getOutputStream(), true);
             input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             Thread thread = new Thread(new ClientHandler(clientSocket));
             thread.start();
-
-            while (true) {
-                String message = getUserInput();
-                if (!message.toLowerCase().equals("exit")) {
-                    output.println(name + ": " + message);
-                    output.flush();
-                } else {
-                    output.println(name + " left chat.");
-                    output.flush();
-                    output.close();
-                    inputLine.close();
-                    clientSocket.close();
-                }
-            }
+            typeMessageOrCloseChat();
         } catch (IOException e) {
-            
+
+        }
+    }
+
+    private void typeMessageOrCloseChat() throws IOException {
+        while (true) {
+            String message = getUserInput();
+            if (!message.toLowerCase().equals("exit")) {
+                output.println(name + ": " + message);
+                output.flush();
+            } else {
+                output.println(name + " left chat.");
+                output.flush();
+                output.close();
+                inputLine.close();
+                clientSocket.close();
+            }
         }
     }
 
     private String getUserInput() throws IOException {
-        BufferedReader inputLine = new BufferedReader(new InputStreamReader(System.in));
         return inputLine.readLine();
     }
 
@@ -53,25 +54,33 @@ public class Client {
         private ClientHandler(Socket clientSocket) {
             this.clientSocket = clientSocket;
             System.out.println("Connected. To leave the chat type \"exit\".");
-
         }
 
         @Override
         public void run() {
             output.println(name + " entered to conversation.");
             output.flush();
-
             try {
-                String message;
-                while ((message = input.readLine()) != null) {
-                    if (!message.startsWith(name)) {
-                        System.out.println(message);
-                    }
-                }
+                printMessage();
             } catch (IOException e) {
                 System.out.println("You left chat.");
                 output.flush();
                 output.close();
+                try {
+                    inputLine.close();
+                    clientSocket.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+
+        private void printMessage() throws IOException {
+            String message;
+            while ((message = input.readLine()) != null) {
+                if (!message.startsWith(name)) {
+                    System.out.println(message);
+                }
             }
         }
     }
