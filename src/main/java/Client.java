@@ -9,14 +9,7 @@ public class Client {
     private PrintWriter output = null;
     private BufferedReader input = null;
 
-    public static void main(String[] args) {
-        String address = "127.0.0.1";
-        int portNumber = 5000;
-        Client client = new Client();
-        client.Client(address, portNumber);
-    }
-
-    private void Client(String address, int port) {
+    public void startClient(String address, int port) {
         BufferedReader inputLine = new BufferedReader(new InputStreamReader(System.in));
 
         try {
@@ -30,7 +23,7 @@ public class Client {
             Socket clientSocket = new Socket(address, port);
             output = new PrintWriter(clientSocket.getOutputStream(), true);
             input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            Thread thread = new Thread(new ClientThread(clientSocket));
+            Thread thread = new Thread(new ClientHandler(clientSocket));
             thread.start();
 
             while (true) {
@@ -51,10 +44,10 @@ public class Client {
         }
     }
 
-    class ClientThread implements Runnable {
+    class ClientHandler implements Runnable {
         Socket clientSocket;
 
-        private ClientThread(Socket clientSocket) {
+        private ClientHandler(Socket clientSocket) {
             this.clientSocket = clientSocket;
             System.out.println("Connected. To leave the chat type \"exit\".");
 
