@@ -4,15 +4,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
     private ExecutorService pool = null;
-    private List<PrintWriter> chatParticipants = new ArrayList<>();
-    private PrintWriter output = null;
+    private ChatParticipant chatParticipant = new ChatParticipant();
 
     public void startServer(int portNumber, int maxNumberOfClients) throws IOException {
         try {
@@ -31,28 +28,29 @@ public class Server {
     class ServerHandler implements Runnable {
         private Socket clientSocket;
         private BufferedReader input;
+        private PrintWriter output;
 
         private ServerHandler(Socket clientSocket) throws IOException {
             this.clientSocket = clientSocket;
+            System.out.println("Client accepted: " + clientSocket);
             input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             output = new PrintWriter(clientSocket.getOutputStream(), true);
-            System.out.println("Client accepted: " + clientSocket);
-            chatParticipants.add(output);
+            chatParticipant.addChatParticipant(output);
         }
 
         @Override
         public void run() {
             try {
-                sendMessageToAllParticipants(input);
+                sendMessageToAllChatParticipants(input);
             } catch (IOException e) {
                 System.out.println("Client disconnected: " + clientSocket);
             }
         }
 
-        private void sendMessageToAllParticipants(BufferedReader input) throws IOException {
+        private void sendMessageToAllChatParticipants(BufferedReader input) throws IOException {
             String message;
             while ((message = input.readLine()) != null) {
-                for (PrintWriter participant : chatParticipants) {
+                for (PrintWriter participant : chatParticipant.getChatParticipants()) {
                     participant.println(message);
                 }
             }
