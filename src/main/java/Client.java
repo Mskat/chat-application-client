@@ -11,9 +11,10 @@ public class Client {
     private BufferedReader input = null;
     private Scanner sc = new Scanner(System.in);
 
-    public void startClient(String address, int port) {
+    public void startClient(String address, int port) throws IOException {
         BufferedReader inputLine = new BufferedReader(new InputStreamReader(System.in));
 
+        System.out.print("Type your name: ");
         name = getUserInput();
 
         try {
@@ -24,7 +25,7 @@ public class Client {
             thread.start();
 
             while (true) {
-                String message = inputLine.readLine();
+                String message = getUserInput();
                 if (!message.toLowerCase().equals("exit")) {
                     output.println(name + ": " + message);
                     output.flush();
@@ -41,8 +42,9 @@ public class Client {
         }
     }
 
-    private String getUserInput() {
-        return sc.nextLine().trim();
+    private String getUserInput() throws IOException {
+        BufferedReader inputLine = new BufferedReader(new InputStreamReader(System.in));
+        return inputLine.readLine();
     }
 
     class ClientHandler implements Runnable {
