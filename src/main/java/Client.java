@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class Client {
     private String name = null;
@@ -62,17 +61,6 @@ public class Client {
                 printMessage();
             } catch (IOException e) {
                 System.out.println("You left chat.");
-//                try {
-////                    output.close();
-////                    input.close();
-//                    inputLine.close();
-//                    clientSocket.close();
-//                    System.out.println(clientSocket.isClosed());
-//                    System.out.println("wszystko zamkniete");
-//                    System.out.println(inputLine.readLine());
-//                } catch (IOException e1) {
-//                    e1.printStackTrace();
-//                }
             }
         }
 
