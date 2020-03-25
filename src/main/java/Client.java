@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Client {
     private String name = null;
@@ -10,18 +12,21 @@ public class Client {
     private BufferedReader input = null;
     private BufferedReader inputLine = new BufferedReader(new InputStreamReader(System.in));
     private Socket clientSocket;
+    private ExecutorService pool = null;
 
-    public void startClient(String address, int port) throws IOException {
+    public void startClient(String address, int port, int maxNumberOfClients) throws IOException {
         System.out.print("Type your name: ");
         name = getUserInput();
 
         try {
             clientSocket = new Socket(address, port);
-           Thread thread = new Thread(new ClientHandler(clientSocket));
-            thread.start();
+            pool = Executors.newFixedThreadPool(maxNumberOfClients);
+            pool.execute(new ClientHandler(clientSocket));
             typeMessageOrCloseChat();
         } catch (IOException e) {
 
+        } finally {
+            pool.shutdown();
         }
     }
 
