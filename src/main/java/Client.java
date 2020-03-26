@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Client {
     private String name = null;
@@ -18,15 +19,29 @@ public class Client {
         System.out.print("Type your name: ");
         name = getUserInput();
 
+        pool = Executors.newFixedThreadPool(maxNumberOfClients);
         try {
             clientSocket = new Socket(address, port);
-            pool = Executors.newFixedThreadPool(maxNumberOfClients);
             pool.execute(new ClientHandler(clientSocket));
             typeMessageOrCloseChat();
         } catch (IOException e) {
 
         } finally {
-            pool.shutdown();
+            shutDownServer(pool);
+        }
+    }
+
+    private void shutDownServer(ExecutorService pool) {
+        System.out.println("I'm shutting down the Server...");
+        pool.shutdown();
+        try {
+            if (!pool.awaitTermination(10, TimeUnit.SECONDS)) {
+                System.out.println("The server did not shut down. Trying again...");
+                pool.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            pool.shutdownNow();
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -41,6 +56,7 @@ public class Client {
                 input.close();
                 inputLine.close();
                 clientSocket.close();
+                shutDownServer(pool);
             }
         }
     }
@@ -66,6 +82,7 @@ public class Client {
                 printMessage();
             } catch (IOException e) {
                 System.out.println("You left chat.");
+                shutDownServer(pool);
             }
         }
 
