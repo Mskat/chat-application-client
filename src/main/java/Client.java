@@ -25,18 +25,18 @@ public class Client {
             pool.execute(new ClientHandler(clientSocket));
             typeMessageOrCloseChat();
         } catch (IOException e) {
-
+            System.out.println("Server is not available.");
         } finally {
-            shutDownServer(pool);
+            shutDownConnection(pool);
         }
     }
 
-    private void shutDownServer(ExecutorService pool) {
-        System.out.println("I'm shutting down the Server...");
+    private void shutDownConnection(ExecutorService pool) {
+        System.out.println("I'm shutting down the connection...");
         pool.shutdown();
         try {
             if (!pool.awaitTermination(10, TimeUnit.SECONDS)) {
-                System.out.println("The server did not shut down. Trying again...");
+                System.out.println("The connection did not shut down. Trying again...");
                 pool.shutdownNow();
             }
         } catch (InterruptedException e) {
@@ -56,7 +56,6 @@ public class Client {
                 input.close();
                 inputLine.close();
                 clientSocket.close();
-                shutDownServer(pool);
             }
         }
     }
@@ -79,14 +78,13 @@ public class Client {
         public void run() {
             output.println(name + " entered to conversation.");
             try {
-                printMessage();
+                printOutMessageToAll();
             } catch (IOException e) {
                 System.out.println("You left chat.");
-                shutDownServer(pool);
             }
         }
 
-        private void printMessage() throws IOException {
+        private void printOutMessageToAll() throws IOException {
             String message;
             while ((message = input.readLine()) != null) {
                 if (!message.startsWith(name)) {
