@@ -11,7 +11,7 @@ public class Client {
     private String name = null;
     private PrintWriter output = null;
     private BufferedReader input = null;
-    private BufferedReader inputLine = new BufferedReader(new InputStreamReader(System.in));
+    private BufferedReader lineTypedFromKeyboard = new BufferedReader(new InputStreamReader(System.in));
     private Socket clientSocket;
     private ExecutorService pool = null;
 
@@ -54,14 +54,14 @@ public class Client {
                 output.println(name + " left chat.");
                 output.close();
                 input.close();
-                inputLine.close();
+                lineTypedFromKeyboard.close();
                 clientSocket.close();
             }
         }
     }
 
     private String getUserInput() throws IOException {
-        return inputLine.readLine();
+        return lineTypedFromKeyboard.readLine();
     }
 
     class ClientHandler implements Runnable {
