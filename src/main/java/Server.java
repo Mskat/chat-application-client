@@ -41,13 +41,13 @@ public class Server {
         @Override
         public void run() {
             try {
-                sendMessageToAllChatParticipants(input);
+                sendMessageToAll();
             } catch (IOException e) {
                 System.out.println("Client disconnected: " + clientSocket);
             }
         }
 
-        private void sendMessageToAllChatParticipants(BufferedReader input) throws IOException {
+        private void sendMessageToAll() throws IOException {
             String message;
             while ((message = input.readLine()) != null) {
                 for (PrintWriter participant : chatParticipant.getChatParticipants()) {
