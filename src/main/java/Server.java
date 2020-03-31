@@ -4,6 +4,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -49,10 +51,18 @@ public class Server {
 
         private void sendMessageToAll() throws IOException {
             String message;
-            while ((message = input.readLine()) != null) {
-                for (PrintWriter participant : chatParticipant.getChatParticipants()) {
-                    participant.println(message);
-                }
+            while ((message = getUserInput()) != null) {
+                printMessage(message);
+            }
+        }
+
+        private String getUserInput() throws IOException {
+            return input.readLine();
+        }
+
+        private void printMessage(String message) {
+            for (PrintWriter participant : chatParticipant.getChatParticipants()) {
+                participant.println(message);
             }
         }
     }
