@@ -17,7 +17,8 @@ public class Client {
 
     public void startClient(String address, int port, int maxNumberOfClients) throws IOException {
         System.out.print("Type your name: ");
-        name = getUserInput().toUpperCase();
+        name = getUserInput();
+
         pool = Executors.newFixedThreadPool(maxNumberOfClients);
         try {
             clientSocket = new Socket(address, port);
@@ -27,17 +28,6 @@ public class Client {
             System.out.println("Server is not available.");
         } finally {
             shutDownConnection(pool);
-        }
-    }
-
-    private void typeMessageOrCloseChat() throws IOException {
-        while (true) {
-            String message = getUserInput();
-            if (!userWantsToLeaveChat(message)) {
-                print(message);
-            } else {
-                userLeavesChat();
-            }
         }
     }
 
@@ -55,30 +45,29 @@ public class Client {
         }
     }
 
+    private void typeMessageOrCloseChat() throws IOException {
+        while (true) {
+            String message = getUserInput();
+            if (!message.toLowerCase().equals("exit")) {
+                output.println(name + ": " + message);
+            } else {
+                output.println(name + " left chat.");
+                output.close();
+                input.close();
+                lineTypedFromKeyboard.close();
+                clientSocket.close();
+            }
+        }
+    }
+
     private String getUserInput() throws IOException {
         return lineTypedFromKeyboard.readLine();
-    }
-
-    private boolean userWantsToLeaveChat(String message) {
-        return message.toLowerCase().equals("exit");
-    }
-
-    private void print(String message) {
-        output.println(name + ": " + message);
-    }
-
-    private void userLeavesChat() throws IOException {
-        output.println(name + " left chat.");
-        output.close();
-        input.close();
-        lineTypedFromKeyboard.close();
-        clientSocket.close();
     }
 
     class ClientHandler implements Runnable {
         Socket clientSocket;
 
-        ClientHandler(Socket clientSocket) throws IOException {
+        private ClientHandler(Socket clientSocket) throws IOException {
             this.clientSocket = clientSocket;
             System.out.println("Connected. To leave the chat type \"exit\".");
             output = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -98,8 +87,9 @@ public class Client {
         private void printOutMessageToAll() throws IOException {
             String message;
             while ((message = input.readLine()) != null) {
-                if (!message.startsWith(name))
+                if (!message.startsWith(name)) {
                     System.out.println(message);
+                }
             }
         }
     }
