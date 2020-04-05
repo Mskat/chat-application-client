@@ -16,9 +16,7 @@ public class Client {
     private ExecutorService pool = null;
 
     public void startClient(String address, int port, int maxNumberOfClients) throws IOException {
-        System.out.print("Type your name: ");
-        name = getUserInput().toUpperCase();
-
+        name = getNameFromUser();
         pool = Executors.newFixedThreadPool(maxNumberOfClients);
         try {
             clientSocket = new Socket(address, port);
@@ -29,6 +27,11 @@ public class Client {
         } finally {
             shutDownConnection(pool);
         }
+    }
+    
+    private String getNameFromUser() throws IOException {
+        System.out.print("Type your name: ");
+        return getUserInput().toUpperCase();
     }
 
     private void typeMessageOrCloseChat() throws IOException {
