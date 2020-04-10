@@ -11,7 +11,6 @@ public class Client {
     private String name = null;
     private PrintWriter output = null;
     private BufferedReader input = null;
-    private BufferedReader lineTypedFromKeyboard = new BufferedReader(new InputStreamReader(System.in));
     private Socket clientSocket;
     private ExecutorService pool = null;
 
@@ -28,15 +27,15 @@ public class Client {
             shutDownConnection(pool);
         }
     }
-    
+
     private String getNameFromUser() throws IOException {
         System.out.print("Type your name: ");
-        return getUserInput().toUpperCase();
+        return User.getUserInput().toUpperCase();
     }
 
     private void typeMessageOrCloseChat() throws IOException {
         while (true) {
-            String message = getUserInput();
+            String message = User.getUserInput();
             if (!userWantsToLeaveChat(message)) {
                 print(message);
             } else {
@@ -59,10 +58,6 @@ public class Client {
         }
     }
 
-    private String getUserInput() throws IOException {
-        return lineTypedFromKeyboard.readLine();
-    }
-
     private boolean userWantsToLeaveChat(String message) {
         return message.toLowerCase().equals("exit");
     }
@@ -75,7 +70,7 @@ public class Client {
         output.println(name + " left chat.");
         output.close();
         input.close();
-        lineTypedFromKeyboard.close();
+        User.closeUserInput();
         clientSocket.close();
     }
 
