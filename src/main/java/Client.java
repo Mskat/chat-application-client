@@ -5,12 +5,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Client {
-    private String name = null;
-    private Socket clientSocket;
+    private Socket clientSocket = null;
     private ExecutorService pool = null;
 
     public void startClient(String address, int port, int maxNumberOfClients) throws IOException {
-        name = getNameFromUser();
+        User.getNameFromUser();
         pool = Executors.newFixedThreadPool(maxNumberOfClients);
         try {
             clientSocket = new Socket(address, port);
@@ -23,16 +22,11 @@ public class Client {
         }
     }
 
-    private String getNameFromUser() throws IOException {
-        System.out.print("Type your name: ");
-        return User.getUserInput().toUpperCase();
-    }
-
     private void typeMessageOrCloseChat() throws IOException {
         while (true) {
             String message = User.getUserInput();
             if (!userWantsToLeaveChat(message)) {
-                Output.printMessage(name, message);
+                Output.printMessage(User.getName(), message);
             } else {
                 userLeavesChat();
             }
@@ -58,7 +52,7 @@ public class Client {
     }
 
     private void userLeavesChat() throws IOException {
-        Output.userLeftTheChat(name);
+        Output.userLeftTheChat(User.getName());
         Output.closeOutput();
         Input.closeInput();
         User.closeUserInput();
@@ -77,7 +71,7 @@ public class Client {
 
         @Override
         public void run() {
-            Output.userJoinTheChat(name);
+            Output.userJoinTheChat(User.getName());
             try {
                 printOutMessageToAll();
             } catch (IOException e) {
@@ -88,7 +82,7 @@ public class Client {
         private void printOutMessageToAll() throws IOException {
             String message;
             while ((message = Input.readInput()) != null) {
-                if (!message.startsWith(name))
+                if (!message.startsWith(User.getName()))
                     System.out.println(message);
             }
         }
