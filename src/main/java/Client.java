@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -9,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 
 public class Client {
     private String name = null;
-    private PrintWriter output = null;
     private Socket clientSocket;
     private ExecutorService pool = null;
 
@@ -36,7 +32,7 @@ public class Client {
         while (true) {
             String message = User.getUserInput();
             if (!userWantsToLeaveChat(message)) {
-                print(message);
+                Output.printMessage(name, message);
             } else {
                 userLeavesChat();
             }
@@ -61,13 +57,9 @@ public class Client {
         return message.toLowerCase().equals("exit");
     }
 
-    private void print(String message) {
-        output.println(name + ": " + message);
-    }
-
     private void userLeavesChat() throws IOException {
-        output.println(name + " left chat.");
-        output.close();
+        Output.userLeftTheChat(name);
+        Output.closeOutput();
         Input.closeInput();
         User.closeUserInput();
         clientSocket.close();
@@ -79,13 +71,13 @@ public class Client {
         private ClientHandler(Socket clientSocket) throws IOException {
             this.clientSocket = clientSocket;
             System.out.println("Connected. To leave the chat type \"exit\".");
-            output = new PrintWriter(clientSocket.getOutputStream(), true);
+            new Output(clientSocket);
             new Input(clientSocket);
         }
 
         @Override
         public void run() {
-            output.println(name + " entered to conversation.");
+            Output.userJoinTheChat(name);
             try {
                 printOutMessageToAll();
             } catch (IOException e) {
