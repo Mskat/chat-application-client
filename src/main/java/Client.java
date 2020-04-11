@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 public class Client {
     private String name = null;
     private PrintWriter output = null;
-    private BufferedReader input = null;
     private Socket clientSocket;
     private ExecutorService pool = null;
 
@@ -69,7 +68,7 @@ public class Client {
     private void userLeavesChat() throws IOException {
         output.println(name + " left chat.");
         output.close();
-        input.close();
+        Input.closeInput();
         User.closeUserInput();
         clientSocket.close();
     }
@@ -81,7 +80,7 @@ public class Client {
             this.clientSocket = clientSocket;
             System.out.println("Connected. To leave the chat type \"exit\".");
             output = new PrintWriter(clientSocket.getOutputStream(), true);
-            input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            new Input(clientSocket);
         }
 
         @Override
@@ -96,7 +95,7 @@ public class Client {
 
         private void printOutMessageToAll() throws IOException {
             String message;
-            while ((message = input.readLine()) != null) {
+            while ((message = Input.readInput()) != null) {
                 if (!message.startsWith(name))
                     System.out.println(message);
             }
