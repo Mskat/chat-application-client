@@ -14,7 +14,20 @@ public class Input {
         input.close();
     }
 
-    public static String readInput() throws IOException {
+    public static void printMessage() throws IOException {
+        String message;
+        while ((message = readInput()) != null) {
+            if (!checkIfNameIsTheSame(message)) {
+                System.out.println(message);
+            }
+        }
+    }
+
+    private static String readInput() throws IOException {
         return input.readLine();
+    }
+
+    private static boolean checkIfNameIsTheSame(String message) {
+        return message.startsWith(User.getName());
     }
 }
