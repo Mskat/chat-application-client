@@ -3,9 +3,9 @@ import java.net.Socket;
 
 public class Session implements Runnable {
     public Session(Socket clientSocket) throws IOException {
-        System.out.println("Connected. To leave the chat type \"exit\".");
         new Output(clientSocket);
         new Input(clientSocket);
+        printConnectedTheChat();
     }
 
     @Override
@@ -14,7 +14,15 @@ public class Session implements Runnable {
         try {
             Input.printMessage();
         } catch (IOException e) {
-            System.out.println("You left chat.");
+            printLeftTheChat();
         }
+    }
+
+    private void printConnectedTheChat() {
+        System.out.println("Connected. To leave the chat type \"exit\".");
+    }
+
+    private void printLeftTheChat() {
+        System.out.println("You left chat.");
     }
 }
