@@ -4,13 +4,13 @@ import java.io.InputStreamReader;
 
 public class User {
     private static String name;
-    private static BufferedReader lineTypedFromKeyboard = new BufferedReader(new InputStreamReader(System.in));
+    private static BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     public static String getName() {
         return name;
     }
 
-    public static String getNameFromUser() throws IOException {
+    public static String askForName() throws IOException {
         System.out.print("Type your name: ");
         return setName();
     }
@@ -21,10 +21,10 @@ public class User {
     }
 
     public static String getUserInput() throws IOException {
-        return lineTypedFromKeyboard.readLine();
+        return input.readLine();
     }
 
     public static void closeUserInput() throws IOException {
-        lineTypedFromKeyboard.close();
+        input.close();
     }
 }

@@ -8,7 +8,7 @@ public class Connection {
     private Socket socket = null;
 
     public void start(String address, int port, int maxNumberOfClients) throws IOException {
-        User.getNameFromUser();
+        User.askForName();
         ExecutorService pool = Executors.newFixedThreadPool(maxNumberOfClients);
         try {
             socket = new Socket(address, port);
