@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,8 +15,10 @@ public class Connection {
             socket = new Socket(address, port);
             pool.execute(new Session(socket));
             typeMessageOrCloseChat();
-        } catch (IOException e) {
-            System.out.println("Server is not available.");
+        } catch (ConnectException e) {
+            printServerIsOff();
+        } catch (IOException ex) {
+            userLeavesChat(socket);
         } finally {
             shutDown(pool);
         }
@@ -27,9 +30,12 @@ public class Connection {
             if (!userWantsToLeaveChat(message)) {
                 Output.printMessage(User.getName(), message);
             } else {
-                userLeavesChat();
+                userLeavesChat(socket);
             }
         }
+    }
+    private void printServerIsOff() {
+        System.out.println("Server is not available.");
     }
 
     private void shutDown(ExecutorService pool) {
@@ -50,7 +56,7 @@ public class Connection {
         return message.toLowerCase().equals("exit");
     }
 
-    private void userLeavesChat() throws IOException {
+    private void userLeavesChat(Socket socket) throws IOException {
         Output.userLeftTheChat(User.getName());
         Output.closeOutput();
         Input.closeInput();

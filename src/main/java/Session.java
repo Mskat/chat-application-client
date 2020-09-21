@@ -23,6 +23,6 @@ public class Session implements Runnable {
     }
 
     private void printLeftTheChat() {
-        System.out.println("You left chat.");
+        System.out.println("You left the chat.");
     }
 }
