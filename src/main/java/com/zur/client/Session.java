@@ -1,3 +1,5 @@
+package com.zur.client;
+
 import java.io.IOException;
 import java.net.Socket;
 

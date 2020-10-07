@@ -1,3 +1,7 @@
+package com.zur;
+
+import com.zur.client.Connection;
+
 import java.io.IOException;
 
 public class Chat {
