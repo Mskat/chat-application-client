@@ -21,7 +21,7 @@ It works in cooperation with another project from my github profile - Chat Appli
 </p>
 
 ## Setup
-<p>Go to chat-application-com.zur.client/src/main/java directory.<br>
+<p>Go to chat-application-client/src/main/java directory.<br>
 Run the commands:</p>
 
     javac com/zur/Chat.java
